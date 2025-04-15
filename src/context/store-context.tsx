@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Product type definition
@@ -72,12 +73,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       } else {
         // Otherwise add new item to cart
         return [...prevItems, { 
-          product, 
+          product: { ...product }, 
           quantity, 
           selectedSize 
         }];
       }
     });
+    
+    // Open the cart when adding an item
+    setIsCartOpen(true);
   };
 
   // Remove product from cart

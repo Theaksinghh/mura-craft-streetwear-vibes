@@ -16,11 +16,11 @@ export function CartDropdown() {
     setIsCartOpen 
   } = useStore();
 
+  if (!isCartOpen) return null;
+
   const closeCart = () => {
     setIsCartOpen(false);
   };
-
-  if (!isCartOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -28,6 +28,7 @@ export function CartDropdown() {
       <div 
         className="absolute inset-0 bg-black/50" 
         onClick={closeCart}
+        aria-hidden="true"
       />
       
       {/* Cart Panel */}
@@ -38,7 +39,12 @@ export function CartDropdown() {
             <ShoppingCart className="mr-2 h-5 w-5" />
             <h2 className="font-semibold text-lg">Your Cart</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={closeCart}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={closeCart}
+            aria-label="Close cart"
+          >
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
           </Button>
@@ -82,6 +88,7 @@ export function CartDropdown() {
                           className="h-8 w-8 rounded-full"
                           onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedSize)}
                           disabled={item.quantity <= 1}
+                          aria-label="Decrease quantity"
                         >
                           <Minus className="h-3 w-3" />
                           <span className="sr-only">Decrease quantity</span>
@@ -92,6 +99,7 @@ export function CartDropdown() {
                           size="icon" 
                           className="h-8 w-8 rounded-full"
                           onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedSize)}
+                          aria-label="Increase quantity"
                         >
                           <Plus className="h-3 w-3" />
                           <span className="sr-only">Increase quantity</span>
@@ -102,6 +110,7 @@ export function CartDropdown() {
                           size="icon" 
                           className="ml-auto"
                           onClick={() => removeFromCart(item.product.id, item.selectedSize)}
+                          aria-label="Remove item"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                           <span className="sr-only">Remove</span>

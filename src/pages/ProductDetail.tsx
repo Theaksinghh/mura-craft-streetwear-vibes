@@ -4,20 +4,20 @@ import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/layouts/site-header";
 import { SiteFooter } from "@/components/layouts/site-footer";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { getProductById, getRelatedProducts } from "@/data/products";
 import { useStore } from "@/context/store-context";
-import { ProductCard } from "@/components/products/product-card";
-import { ShoppingCart, ArrowLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { ProductInfo } from "@/components/products/product-info";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
+import { RelatedProducts } from "@/components/products/related-products";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const { addToCart, setIsCartOpen } = useStore();
+  const { addToCart } = useStore();
   const [selectedSize, setSelectedSize] = useState<string>("M");
   const [quantity, setQuantity] = useState<number>(1);
   
-  // Scroll to top when product changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [id]);
@@ -43,10 +43,6 @@ export default function ProductDetail() {
     );
   }
 
-  const handleSizeSelect = (size: string) => {
-    setSelectedSize(size);
-  };
-
   const handleQuantityChange = (action: 'increment' | 'decrement') => {
     if (action === 'decrement' && quantity > 1) {
       setQuantity(quantity - 1);
@@ -61,23 +57,21 @@ export default function ProductDetail() {
       selectedSize,
       quantity
     });
-    setIsCartOpen(true);
     toast.success(`Added ${quantity} ${product.name} (${selectedSize}) to cart`);
   };
+
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: 'Shop', href: '/shop' },
+    { label: product.name }
+  ];
   
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
       <main className="flex-grow">
         <div className="container py-8">
-          {/* Breadcrumbs */}
-          <div className="flex items-center text-sm text-muted-foreground mb-8">
-            <Link to="/" className="hover:text-foreground">Home</Link>
-            <ChevronRight className="mx-2 h-4 w-4" />
-            <Link to="/shop" className="hover:text-foreground">Shop</Link>
-            <ChevronRight className="mx-2 h-4 w-4" />
-            <span className="text-foreground font-medium truncate">{product.name}</span>
-          </div>
+          <Breadcrumbs items={breadcrumbItems} />
           
           {/* Back Button (Mobile) */}
           <Button variant="ghost" asChild className="mb-4 md:hidden">
@@ -99,104 +93,18 @@ export default function ProductDetail() {
             </div>
             
             {/* Product Info */}
-            <div>
-              <div className="sticky top-20">
-                <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-                <p className="text-2xl font-bold mb-4">₹{product.price}</p>
-                <p className="text-muted-foreground mb-6">{product.description}</p>
-                
-                <div className="space-y-4 mb-6">
-                  <div>
-                    <h3 className="font-medium mb-2">Size</h3>
-                    <div className="flex gap-2">
-                      {["S", "M", "L", "XL", "XXL"].map((size) => (
-                        <Button 
-                          key={size} 
-                          variant={selectedSize === size ? "default" : "outline"} 
-                          className="h-10 w-10"
-                          onClick={() => handleSizeSelect(size)}
-                        >
-                          {size}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-medium mb-2">Quantity</h3>
-                    <div className="flex items-center">
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-10 w-10 rounded-r-none"
-                        onClick={() => handleQuantityChange('decrement')}
-                        disabled={quantity <= 1}
-                      >
-                        -
-                      </Button>
-                      <div className="h-10 px-4 flex items-center justify-center border-y">
-                        {quantity}
-                      </div>
-                      <Button 
-                        variant="outline" 
-                        size="icon" 
-                        className="h-10 w-10 rounded-l-none"
-                        onClick={() => handleQuantityChange('increment')}
-                      >
-                        +
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Add to Cart */}
-                <Button 
-                  onClick={handleAddToCart} 
-                  size="lg" 
-                  className="w-full mb-4"
-                >
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  Add to Cart
-                </Button>
-                
-                {/* Product Details */}
-                <div className="space-y-4 mt-8">
-                  <div>
-                    <h3 className="font-semibold">Product Details</h3>
-                    <Separator className="my-2" />
-                    <ul className="list-disc list-inside space-y-1 text-sm">
-                      <li>100% premium cotton for maximum comfort</li>
-                      <li>Oversized fit for a trendy, relaxed look</li>
-                      <li>Vibrant, long-lasting prints that won't fade</li>
-                      <li>Pre-shrunk fabric to maintain size after washing</li>
-                      <li>Designed in India for the style-conscious youth</li>
-                    </ul>
-                  </div>
-                  
-                  <div>
-                    <h3 className="font-semibold">Shipping & Returns</h3>
-                    <Separator className="my-2" />
-                    <p className="text-sm text-muted-foreground">
-                      Free shipping on all orders above ₹999. Easy 15-day returns on all unworn items.
-                      See our <Link to="/return-policy" className="text-primary hover:underline">return policy</Link> for more details.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <ProductInfo
+              product={product}
+              selectedSize={selectedSize}
+              quantity={quantity}
+              onSizeSelect={setSelectedSize}
+              onQuantityChange={handleQuantityChange}
+              onAddToCart={handleAddToCart}
+            />
           </div>
           
           {/* Related Products */}
-          {relatedProducts.length > 0 && (
-            <div className="mt-16">
-              <h2 className="text-2xl font-bold mb-6">You May Also Like</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {relatedProducts.map((related) => (
-                  <ProductCard key={related.id} product={related} />
-                ))}
-              </div>
-            </div>
-          )}
+          <RelatedProducts products={relatedProducts} />
         </div>
       </main>
       <SiteFooter />

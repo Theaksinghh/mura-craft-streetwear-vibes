@@ -1,6 +1,6 @@
 
 import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SiteHeader } from "@/components/layouts/site-header";
 import { SiteFooter } from "@/components/layouts/site-footer";
 import { Button } from "@/components/ui/button";
@@ -9,10 +9,13 @@ import { getProductById, getRelatedProducts } from "@/data/products";
 import { useStore } from "@/context/store-context";
 import { ProductCard } from "@/components/products/product-card";
 import { ShoppingCart, ArrowLeft, ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
-  const { addToCart } = useStore();
+  const { addToCart, setIsCartOpen } = useStore();
+  const [selectedSize, setSelectedSize] = useState<string>("M");
+  const [quantity, setQuantity] = useState<number>(1);
   
   // Scroll to top when product changes
   useEffect(() => {
@@ -39,6 +42,28 @@ export default function ProductDetail() {
       </div>
     );
   }
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size);
+  };
+
+  const handleQuantityChange = (action: 'increment' | 'decrement') => {
+    if (action === 'decrement' && quantity > 1) {
+      setQuantity(quantity - 1);
+    } else if (action === 'increment') {
+      setQuantity(quantity + 1);
+    }
+  };
+
+  const handleAddToCart = () => {
+    addToCart({
+      ...product,
+      selectedSize,
+      quantity
+    });
+    setIsCartOpen(true);
+    toast.success(`Added ${quantity} ${product.name} (${selectedSize}) to cart`);
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -87,8 +112,9 @@ export default function ProductDetail() {
                       {["S", "M", "L", "XL", "XXL"].map((size) => (
                         <Button 
                           key={size} 
-                          variant="outline" 
+                          variant={selectedSize === size ? "default" : "outline"} 
                           className="h-10 w-10"
+                          onClick={() => handleSizeSelect(size)}
                         >
                           {size}
                         </Button>
@@ -103,16 +129,19 @@ export default function ProductDetail() {
                         variant="outline" 
                         size="icon" 
                         className="h-10 w-10 rounded-r-none"
+                        onClick={() => handleQuantityChange('decrement')}
+                        disabled={quantity <= 1}
                       >
                         -
                       </Button>
                       <div className="h-10 px-4 flex items-center justify-center border-y">
-                        1
+                        {quantity}
                       </div>
                       <Button 
                         variant="outline" 
                         size="icon" 
                         className="h-10 w-10 rounded-l-none"
+                        onClick={() => handleQuantityChange('increment')}
                       >
                         +
                       </Button>
@@ -122,7 +151,7 @@ export default function ProductDetail() {
                 
                 {/* Add to Cart */}
                 <Button 
-                  onClick={() => addToCart(product)} 
+                  onClick={handleAddToCart} 
                   size="lg" 
                   className="w-full mb-4"
                 >

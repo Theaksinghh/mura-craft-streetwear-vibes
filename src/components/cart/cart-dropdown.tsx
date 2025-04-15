@@ -57,8 +57,8 @@ export function CartDropdown() {
             </div>
           ) : (
             <ul className="divide-y">
-              {cartItems.map((item) => (
-                <li key={item.product.id} className="py-4">
+              {cartItems.map((item, index) => (
+                <li key={`${item.product.id}-${item.selectedSize}-${index}`} className="py-4">
                   <div className="flex gap-4">
                     <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border">
                       <img
@@ -72,6 +72,7 @@ export function CartDropdown() {
                         <h3>{item.product.name}</h3>
                         <p className="ml-4">₹{item.product.price}</p>
                       </div>
+                      <p className="text-sm text-muted-foreground mt-1">Size: {item.selectedSize}</p>
                       
                       {/* Quantity Controls */}
                       <div className="flex items-center mt-2">
@@ -79,7 +80,7 @@ export function CartDropdown() {
                           variant="outline" 
                           size="icon" 
                           className="h-8 w-8 rounded-full"
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedSize)}
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="h-3 w-3" />
@@ -90,7 +91,7 @@ export function CartDropdown() {
                           variant="outline" 
                           size="icon" 
                           className="h-8 w-8 rounded-full"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedSize)}
                         >
                           <Plus className="h-3 w-3" />
                           <span className="sr-only">Increase quantity</span>
@@ -100,7 +101,7 @@ export function CartDropdown() {
                           variant="ghost" 
                           size="icon" 
                           className="ml-auto"
-                          onClick={() => removeFromCart(item.product.id)}
+                          onClick={() => removeFromCart(item.product.id, item.selectedSize)}
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                           <span className="sr-only">Remove</span>

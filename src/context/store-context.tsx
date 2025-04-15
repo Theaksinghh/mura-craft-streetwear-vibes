@@ -8,20 +8,23 @@ export type Product = {
   image: string;
   description: string;
   category: string;
+  selectedSize?: string;
+  quantity?: number;
 };
 
 // Cart item type definition
 export type CartItem = {
   product: Product;
   quantity: number;
+  selectedSize: string;
 };
 
 // Store context type definition
 type StoreContextType = {
   cartItems: CartItem[];
   addToCart: (product: Product) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string, selectedSize?: string) => void;
+  updateQuantity: (productId: string, quantity: number, selectedSize?: string) => void;
   clearCart: () => void;
   cartCount: number;
   cartTotal: number;
@@ -51,33 +54,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // Add product to cart
   const addToCart = (product: Product) => {
     setCartItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(item => item.product.id === product.id);
+      const selectedSize = product.selectedSize || 'M';
+      const quantity = product.quantity || 1;
+      
+      const existingItemIndex = prevItems.findIndex(
+        item => item.product.id === product.id && item.selectedSize === selectedSize
+      );
       
       if (existingItemIndex !== -1) {
-        // If product already exists in cart, increase quantity
+        // If product with same size already exists in cart, increase quantity
         const updatedItems = [...prevItems];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + 1
+          quantity: updatedItems[existingItemIndex].quantity + quantity
         };
         return updatedItems;
       } else {
         // Otherwise add new item to cart
-        return [...prevItems, { product, quantity: 1 }];
+        return [...prevItems, { 
+          product, 
+          quantity, 
+          selectedSize 
+        }];
       }
     });
   };
 
   // Remove product from cart
-  const removeFromCart = (productId: string) => {
-    setCartItems(prevItems => prevItems.filter(item => item.product.id !== productId));
+  const removeFromCart = (productId: string, selectedSize?: string) => {
+    setCartItems(prevItems => {
+      if (selectedSize) {
+        return prevItems.filter(
+          item => !(item.product.id === productId && item.selectedSize === selectedSize)
+        );
+      }
+      return prevItems.filter(item => item.product.id !== productId);
+    });
   };
 
   // Update quantity of a product in cart
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = (productId: string, quantity: number, selectedSize?: string) => {
     setCartItems(prevItems => {
       return prevItems.map(item => {
-        if (item.product.id === productId) {
+        if (item.product.id === productId && (!selectedSize || item.selectedSize === selectedSize)) {
           return { ...item, quantity: Math.max(1, quantity) };
         }
         return item;

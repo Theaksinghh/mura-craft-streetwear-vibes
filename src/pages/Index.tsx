@@ -1,14 +1,34 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import { SiteHeader } from "@/components/layouts/site-header";
+import { SiteFooter } from "@/components/layouts/site-footer";
+import { HeroSection } from "@/components/sections/hero-section";
+import { FeaturedProducts } from "@/components/sections/featured-products";
+import { TrendingSection } from "@/components/sections/trending-section";
+import { CTASection } from "@/components/sections/cta-section";
+import { featuredProducts, newArrivals } from "@/data/products";
+
+export default function Index() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <SiteHeader />
+      <main className="flex-grow">
+        <HeroSection />
+        <FeaturedProducts 
+          title="Bestsellers" 
+          products={featuredProducts} 
+          linkUrl="/shop?category=bestsellers" 
+          linkText="View All Bestsellers" 
+        />
+        <TrendingSection />
+        <FeaturedProducts 
+          title="New Arrivals" 
+          products={newArrivals} 
+          linkUrl="/shop?category=new" 
+          linkText="View All New Arrivals" 
+        />
+        <CTASection />
+      </main>
+      <SiteFooter />
     </div>
   );
-};
-
-export default Index;
+}

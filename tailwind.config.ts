@@ -52,6 +52,16 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+        // MuraCraft custom colors
+        mura: {
+          pink: '#ff2d55',
+          blue: '#0066ff',
+          yellow: '#ffcc00',
+          purple: '#5856d6',
+          green: '#34c759',
+          black: '#101010',
+          gray: '#f4f4f4',
+        },
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

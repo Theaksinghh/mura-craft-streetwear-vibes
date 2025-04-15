@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,8 @@ import TermsConditions from "./pages/TermsConditions";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ReturnPolicy from "./pages/ReturnPolicy";
 import CheckoutPage from "./pages/CheckoutPage";
+import AuthPage from "./pages/AuthPage";
+import ProfilePage from "./pages/ProfilePage";
 import { CartPage } from "./components/cart/cart-page";
 import Faq from "./pages/Faq";
 import NotFound from "./pages/NotFound";
@@ -39,6 +42,8 @@ const App = () => (
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/return-policy" element={<ReturnPolicy />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
             <Route path="/faq" element={<Faq />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,16 +1,33 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStore } from "@/context/store-context";
 import { CartDropdown } from "@/components/cart/cart-dropdown";
+import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader() {
   const { cartCount, isCartOpen, setIsCartOpen } = useStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+    };
+    
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -21,7 +38,6 @@ export function SiteHeader() {
   };
 
   const toggleCart = () => {
-    // Explicitly set the cart state to open, rather than toggling
     setIsCartOpen(true);
   };
 
@@ -49,6 +65,20 @@ export function SiteHeader() {
               <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
             </Button>
+
+            {/* Auth Button */}
+            {isAuthenticated ? (
+              <Link to="/profile">
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">Profile</span>
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+            )}
 
             {/* Cart */}
             <Button 
@@ -97,6 +127,9 @@ export function SiteHeader() {
             <Link to="/shop" className="font-medium" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
             <Link to="/about" className="font-medium" onClick={() => setIsMobileMenuOpen(false)}>About</Link>
             <Link to="/contact" className="font-medium" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
+            {!isAuthenticated && (
+              <Link to="/auth" className="font-medium" onClick={() => setIsMobileMenuOpen(false)}>Sign In</Link>
+            )}
           </nav>
         </div>
       )}
